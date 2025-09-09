@@ -18,27 +18,29 @@ import androidx.core.view.WindowCompat
 private val DarkColorScheme = darkColorScheme(
     primary = Lemon,
     secondary = DarkGreen,
-    tertiary = DarkGreen,
     background = DarkBackground,
     surface = DarkSurface,
     onPrimary = BlackText,
     onSecondary = WhiteText,
-    onTertiary = WhiteText,
     onBackground = WhiteText,
-    onSurface = WhiteText
+    onSurface = WhiteText,
+    surfaceVariant = DarkField,
+    outline = BorderGrey,
+    onSurfaceVariant = TextGrey
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = DarkGreen,
     secondary = LightGreen,
-    tertiary = LightGreen,
     background = LightBackground,
     surface = LightSurface,
     onPrimary = BlackText,
     onSecondary = WhiteText,
-    onTertiary = WhiteText,
     onBackground = DarkText,
-    onSurface = DarkText
+    onSurface = DarkText,
+    surfaceVariant = LightField,
+    outline = LightTextGrey,
+    onSurfaceVariant = LightTextGrey
 )
 
 @Composable
