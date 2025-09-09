@@ -188,6 +188,7 @@ fun LoginScreenContent(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(
+                    modifier = Modifier.testTag("ForgotPasswordButton"),
                     onClick = actions.onForgotPasswordClicked,
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
@@ -209,6 +210,7 @@ fun LoginScreenContent(
             )
             Spacer(modifier = Modifier.height(16.dp))
             SecondaryButton(
+                modifier = Modifier.testTag("GoogleLoginButton"),
                 text = stringResource(R.string.login_google_button),
                 icon = Icons.Default.AccountCircle,
                 onClick = actions.onGoogleLoginClicked
@@ -228,6 +230,7 @@ fun LoginScreenContent(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 TextButton(
+                    modifier = Modifier.testTag("CreateAccountButton"),
                     onClick = actions.onCreateAccountClicked,
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {

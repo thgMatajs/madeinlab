@@ -60,11 +60,11 @@ fun AppTextField(
         }
     }
 
-    Column(modifier = modifier) {
+    Column {
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             label = { Text(label) },
             leadingIcon = {
                 if (leadingIcon != null) {
