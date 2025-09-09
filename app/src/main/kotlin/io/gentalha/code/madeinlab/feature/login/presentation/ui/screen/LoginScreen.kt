@@ -1,6 +1,5 @@
 package io.gentalha.code.madeinlab.feature.login.presentation.ui.screen
 
-import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,8 +25,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import io.gentalha.code.madeinlab.R
+import io.gentalha.code.madeinlab.core.extesions.shortToast
 import io.gentalha.code.madeinlab.ds.buttom.PrimaryButton
 import io.gentalha.code.madeinlab.ds.buttom.SecondaryButton
 import io.gentalha.code.madeinlab.ds.textfield.AppTextField
@@ -55,10 +54,10 @@ fun LoginScreen(
         viewModel.eventChannel.collect { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> {
-                    Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
+                    shortToast(successMessage, context)
                 }
                 is LoginEvent.LoginFailure -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                    shortToast(event.message, context)
                 }
             }
         }
@@ -146,7 +145,7 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(
-                    onClick = { /* TODO: Chamar viewModel.onForgotPasswordClicked() */ },
+                    onClick = { shortToast("Navega para esqueceu minha senha.", context) },
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     Text(
@@ -171,7 +170,7 @@ fun LoginScreen(
             SecondaryButton(
                 text = stringResource(R.string.login_google_button),
                 icon = Icons.Default.AccountCircle,
-                onClick = { /* TODO: Chamar viewModel.onGoogleSignInClicked() */ }
+                onClick = { shortToast("Faz login com o google.", context) }
             )
 
             Row(
@@ -188,7 +187,7 @@ fun LoginScreen(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 TextButton(
-                    onClick = { /* TODO: Chamar viewModel.onSignUpClicked() */ },
+                    onClick = { shortToast("Navega para Criar conta.", context) },
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     Text(
@@ -206,10 +205,10 @@ fun LoginScreen(
 fun AppLogo() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Icon(
-            painter = painterResource(id = android.R.drawable.ic_menu_compass),
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
             contentDescription = "Logo",
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(64.dp)
