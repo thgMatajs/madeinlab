@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">madeinlab</string>
+    <string name="login_title">Bem-vindo de volta!</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Senha</string>
+    <string name="login_forgot_password">Esqueceu a senha?</string>
+    <string name="login_button">Entrar</string>
+    <string name="login_google_button">Entrar com Google</string>
+    <string name="login_no_account">Não tem uma conta?</string>
+    <string name="login_signup">Crie uma aqui.</string>
+    <string name="login_success">Login bem-sucedido!</string>
+    <string name="app_logo_text">madeInLab</string>
 </resources>

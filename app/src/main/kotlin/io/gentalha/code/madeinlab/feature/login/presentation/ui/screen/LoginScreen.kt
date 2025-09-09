@@ -17,6 +17,7 @@ import androidx.compose.ui.focus.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.gentalha.code.madeinlab.R
 import io.gentalha.code.madeinlab.ds.buttom.PrimaryButton
 import io.gentalha.code.madeinlab.ds.buttom.SecondaryButton
 import io.gentalha.code.madeinlab.ds.textfield.AppTextField
@@ -46,9 +48,10 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         emailFocusRequester.requestFocus()
     }
+    val successMessage = stringResource(R.string.login_success)
     LaunchedEffect(uiState.loginSuccess) {
         if (uiState.loginSuccess) {
-            Toast.makeText(context, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -76,7 +79,7 @@ fun LoginScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "Bem-vindo de volta!",
+                text = stringResource(R.string.login_title),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center,
@@ -87,7 +90,7 @@ fun LoginScreen(
             AppTextField(
                 value = uiState.email,
                 onValueChange = viewModel::onEmailChanged,
-                label = "Email",
+                label = stringResource(R.string.login_email),
                 leadingIcon = Icons.Default.Mail,
                 isError = uiState.emailError != null,
                 errorMessage = uiState.emailError,
@@ -113,7 +116,7 @@ fun LoginScreen(
             AppTextField(
                 value = uiState.password,
                 onValueChange = viewModel::onPasswordChanged,
-                label = "Senha",
+                label = stringResource(R.string.login_password),
                 leadingIcon = Icons.Default.Lock,
                 isError = uiState.passwordError != null,
                 errorMessage = uiState.passwordError,
@@ -138,7 +141,7 @@ fun LoginScreen(
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     Text(
-                        text = "Esqueceu a senha?",
+                        text = stringResource(R.string.login_forgot_password),
                         style = MaterialTheme.typography.bodySmall,
                         textDecoration = TextDecoration.Underline,
                     )
@@ -147,7 +150,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             PrimaryButton(
-                text = "Entrar",
+                text = stringResource(R.string.login_button),
                 isLoading = uiState.isLoading,
                 onClick = {
                     viewModel.onLoginClicked()
@@ -157,7 +160,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             SecondaryButton(
-                text = "Entrar com Google",
+                text = stringResource(R.string.login_google_button),
                 icon = Icons.Default.AccountCircle,
                 onClick = { /* TODO: Chamar viewModel.onGoogleSignInClicked() */ }
             )
@@ -170,7 +173,7 @@ fun LoginScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Não tem uma conta?",
+                    stringResource(R.string.login_no_account),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -180,7 +183,7 @@ fun LoginScreen(
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     Text(
-                        text = "Crie uma aqui.",
+                        text = stringResource(R.string.login_signup),
                         style = MaterialTheme.typography.bodySmall,
                         textDecoration = TextDecoration.Underline,
                     )
@@ -203,7 +206,7 @@ fun AppLogo() {
             modifier = Modifier.size(64.dp)
         )
         Text(
-            text = "madeInLab",
+            text = stringResource(R.string.app_logo_text),
             color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.ExtraBold
