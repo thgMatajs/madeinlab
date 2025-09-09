@@ -1,5 +1,6 @@
 package io.gentalha.code.madeinlab.feature.login.presentation.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,58 +24,31 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.gentalha.code.madeinlab.core.validation.Rules
-import io.gentalha.code.madeinlab.core.validation.ValidatedState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.gentalha.code.madeinlab.ds.buttom.PrimaryButton
 import io.gentalha.code.madeinlab.ds.buttom.SecondaryButton
 import io.gentalha.code.madeinlab.ds.textfield.AppTextField
+import io.gentalha.code.madeinlab.feature.login.presentation.viewmodel.LoginViewModel
 import io.gentalha.code.madeinlab.ui.theme.MadeInLabTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
-    val emailState = remember {
-        ValidatedState(rules = listOf(
-            Rules.NotEmptyRule("O e-mail não pode ser vazio."),
-            Rules.EmailRule("O formato do e-mail é inválido.")
-        ))
-    }
-    val passwordState = remember {
-        ValidatedState(rules = listOf(
-            Rules.NotEmptyRule("A senha não pode ser vazia."),
-            Rules.MinLengthRule(6, "A senha deve ter no mínimo 6 caracteres.")
-        ))
-    }
-    var isLoading by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val emailFocusRequester = remember { FocusRequester() }
-
     var hasEmailBeenFocused by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         emailFocusRequester.requestFocus()
     }
-
-    val isFormValid by remember {
-        derivedStateOf {
-            val isEmailValid = emailState.rules.all { it.validate(emailState.text) }
-            val isPasswordValid = passwordState.rules.all { it.validate(passwordState.text) }
-            isEmailValid && isPasswordValid
-        }
-    }
-
-    val performLogin = {
-        emailState.validate()
-        passwordState.validate()
-        if (isFormValid) {
-            focusManager.clearFocus()
-            scope.launch {
-                isLoading = true
-                delay(2000)
-                isLoading = false
-            }
+    LaunchedEffect(uiState.loginSuccess) {
+        if (uiState.loginSuccess) {
+            Toast.makeText(context, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -110,14 +85,13 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
             )
-
             AppTextField(
-                value = emailState.text,
-                onValueChange = { emailState.onValueChanged(it) },
+                value = uiState.email,
+                onValueChange = viewModel::onEmailChanged,
                 label = "Email",
                 leadingIcon = Icons.Default.Mail,
-                isError = emailState.isError,
-                errorMessage = emailState.errorMessage,
+                isError = uiState.emailError != null,
+                errorMessage = uiState.emailError,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
@@ -132,24 +106,27 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                             hasEmailBeenFocused = true
                         }
                         if (!focusState.isFocused && hasEmailBeenFocused) {
-                            emailState.validate()
+                            viewModel.onEmailFocusChanged()
                         }
                     }
             )
             Spacer(modifier = Modifier.height(16.dp))
             AppTextField(
-                value = passwordState.text,
-                onValueChange = { passwordState.onValueChanged(it) },
+                value = uiState.password,
+                onValueChange = viewModel::onPasswordChanged,
                 label = "Senha",
                 leadingIcon = Icons.Default.Lock,
-                isError = passwordState.isError,
-                errorMessage = passwordState.errorMessage,
+                isError = uiState.passwordError != null,
+                errorMessage = uiState.passwordError,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { performLogin() }
+                    onDone = {
+                        focusManager.clearFocus()
+                        viewModel.onLoginClicked()
+                    }
                 )
             )
 
@@ -158,7 +135,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(
-                    onClick = { },
+                    onClick = { /* TODO: Chamar viewModel.onForgotPasswordClicked() */ },
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     Text(
@@ -172,15 +149,18 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 
             PrimaryButton(
                 text = "Entrar",
-                isLoading = isLoading,
-                onClick = { performLogin() },
-                enabled = isFormValid && !isLoading
+                isLoading = uiState.isLoading,
+                onClick = {
+                    viewModel::onLoginClicked
+                    focusManager.clearFocus()
+                },
+                enabled = uiState.isFormValid && !uiState.isLoading
             )
             Spacer(modifier = Modifier.height(16.dp))
             SecondaryButton(
                 text = "Entrar com Google",
                 icon = Icons.Default.AccountCircle,
-                onClick = { }
+                onClick = { /* TODO: Chamar viewModel.onGoogleSignInClicked() */ }
             )
 
             Row(
@@ -197,7 +177,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 TextButton(
-                    onClick = { },
+                    onClick = { /* TODO: Chamar viewModel.onSignUpClicked() */ },
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     Text(
