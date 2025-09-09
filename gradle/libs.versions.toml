@@ -17,6 +17,7 @@ ksp = "2.2.10-2.0.2"
 kotlinxCoroutinesTest = "1.10.2"
 mockk = "1.14.5"
 truth = "1.4.4"
+turbine = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,6 +46,7 @@ koin-ksp = { group = "io.insert-koin", name = "koin-ksp-compiler", version.ref =
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [bundles]
 koin = ["koin-core", "koin-android", "koin-viewmodel", "koin-androidx-compose"]
@@ -57,7 +59,7 @@ compose-ui = [
     "androidx-compose-icon-extended"
 ]
 compose-ui-test = ["androidx-compose-ui-test-junit4", "androidx-compose-ui-test-manifest"]
-unit-test = ["junit", "kotlinx-coroutines-test", "mockk", "truth"]
+unit-test = ["junit", "kotlinx-coroutines-test", "mockk", "truth", "turbine"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
