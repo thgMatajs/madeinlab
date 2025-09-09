@@ -13,8 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,7 +29,7 @@ import io.gentalha.code.madeinlab.core.extesions.shortToast
 import io.gentalha.code.madeinlab.ds.buttom.PrimaryButton
 import io.gentalha.code.madeinlab.ds.buttom.SecondaryButton
 import io.gentalha.code.madeinlab.ds.textfield.AppTextField
-import io.gentalha.code.madeinlab.feature.login.presentation.ui.state.LoginEvent
+import io.gentalha.code.madeinlab.feature.login.presentation.ui.state.*
 import io.gentalha.code.madeinlab.feature.login.presentation.viewmodel.LoginViewModel
 import io.gentalha.code.madeinlab.ui.theme.MadeInLabTheme
 import org.koin.androidx.compose.koinViewModel
@@ -49,20 +48,76 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         emailFocusRequester.requestFocus()
     }
+
     val successMessage = stringResource(R.string.login_success)
     LaunchedEffect(Unit) {
         viewModel.eventChannel.collect { event ->
             when (event) {
-                is LoginEvent.LoginSuccess -> {
-                    shortToast(successMessage, context)
-                }
-                is LoginEvent.LoginFailure -> {
-                    shortToast(event.message, context)
-                }
+                is LoginEvent.LoginSuccess -> shortToast(successMessage, context)
+                is LoginEvent.LoginFailure -> shortToast(event.message, context)
             }
         }
     }
 
+    val actions = remember(viewModel) {
+        LoginActions(
+            onEmailChanged = viewModel::onEmailChanged,
+            onPasswordChanged = viewModel::onPasswordChanged,
+            onLoginClicked = {
+                focusManager.clearFocus()
+                viewModel.onLoginClicked()
+            },
+            onEmailFocusChanged = { isFocused ->
+                if (isFocused) hasEmailBeenFocused = true
+                if (!isFocused && hasEmailBeenFocused) viewModel.onEmailFocusChanged()
+            },
+            onImeActionNext = { focusManager.moveFocus(FocusDirection.Down) },
+            onImeActionDone = {
+                focusManager.clearFocus()
+                viewModel.onLoginClicked()
+            },
+            onForgotPasswordClicked = { shortToast("Navega para esqueceu minha senha.", context) },
+            onGoogleLoginClicked = { shortToast("Faz login com o google.", context) },
+            onCreateAccountClicked = { shortToast("Navega para Criar conta.", context) }
+        )
+    }
+
+    LoginScreenContent(
+        modifier = modifier,
+        uiState = uiState,
+        emailFocusRequester = emailFocusRequester,
+        actions = actions
+    )
+}
+
+@Composable
+fun AppLogo() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            contentDescription = "Logo",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(64.dp)
+        )
+        Text(
+            text = stringResource(R.string.app_logo_text),
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.ExtraBold
+        )
+    }
+}
+
+@Composable
+fun LoginScreenContent(
+    modifier: Modifier = Modifier,
+    uiState: LoginUiState,
+    emailFocusRequester: FocusRequester,
+    actions: LoginActions
+) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -71,7 +126,7 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 64.dp),
+                .padding(top = 58.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AppLogo()
@@ -97,7 +152,7 @@ fun LoginScreen(
             )
             AppTextField(
                 value = uiState.email,
-                onValueChange = viewModel::onEmailChanged,
+                onValueChange = actions.onEmailChanged,
                 label = stringResource(R.string.login_email),
                 leadingIcon = Icons.Default.Mail,
                 isError = uiState.emailError != null,
@@ -106,24 +161,17 @@ fun LoginScreen(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
-                keyboardActions = KeyboardActions(
-                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                ),
+                keyboardActions = KeyboardActions(onNext = { actions.onImeActionNext() }),
                 modifier = Modifier
                     .focusRequester(emailFocusRequester)
-                    .onFocusChanged { focusState ->
-                        if (focusState.isFocused) {
-                            hasEmailBeenFocused = true
-                        }
-                        if (!focusState.isFocused && hasEmailBeenFocused) {
-                            viewModel.onEmailFocusChanged()
-                        }
-                    }
+                    .testTag("EmailField")
+                    .onFocusChanged { focusState -> actions.onEmailFocusChanged(focusState.isFocused) }
             )
             Spacer(modifier = Modifier.height(16.dp))
             AppTextField(
+                modifier = Modifier.testTag("PasswordField"),
                 value = uiState.password,
-                onValueChange = viewModel::onPasswordChanged,
+                onValueChange = actions.onPasswordChanged,
                 label = stringResource(R.string.login_password),
                 leadingIcon = Icons.Default.Lock,
                 isError = uiState.passwordError != null,
@@ -132,12 +180,7 @@ fun LoginScreen(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
                 ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        focusManager.clearFocus()
-                        viewModel.onLoginClicked()
-                    }
-                )
+                keyboardActions = KeyboardActions(onDone = { actions.onImeActionDone() })
             )
 
             Row(
@@ -145,7 +188,7 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(
-                    onClick = { shortToast("Navega para esqueceu minha senha.", context) },
+                    onClick = actions.onForgotPasswordClicked,
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     Text(
@@ -158,19 +201,17 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             PrimaryButton(
+                modifier = Modifier.testTag("LoginButton"),
                 text = stringResource(R.string.login_button),
                 isLoading = uiState.isLoading,
-                onClick = {
-                    viewModel.onLoginClicked()
-                    focusManager.clearFocus()
-                },
+                onClick = actions.onLoginClicked,
                 enabled = uiState.isFormValid && !uiState.isLoading
             )
             Spacer(modifier = Modifier.height(16.dp))
             SecondaryButton(
                 text = stringResource(R.string.login_google_button),
                 icon = Icons.Default.AccountCircle,
-                onClick = { shortToast("Faz login com o google.", context) }
+                onClick = actions.onGoogleLoginClicked
             )
 
             Row(
@@ -187,7 +228,7 @@ fun LoginScreen(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 TextButton(
-                    onClick = { shortToast("Navega para Criar conta.", context) },
+                    onClick = actions.onCreateAccountClicked,
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     Text(
@@ -201,32 +242,11 @@ fun LoginScreen(
     }
 }
 
-@Composable
-fun AppLogo() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_launcher_foreground),
-            contentDescription = "Logo",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(64.dp)
-        )
-        Text(
-            text = stringResource(R.string.app_logo_text),
-            color = MaterialTheme.colorScheme.onBackground,
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.ExtraBold
-        )
-    }
-}
-
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun LoginScreenPreviewLight() {
     MadeInLabTheme(darkTheme = false) {
-        LoginScreen(Modifier)
+        LoginScreen()
     }
 }
 
@@ -234,6 +254,6 @@ fun LoginScreenPreviewLight() {
 @Composable
 fun LoginScreenPreviewDark() {
     MadeInLabTheme(darkTheme = true) {
-        LoginScreen(Modifier)
+        LoginScreen()
     }
 }
