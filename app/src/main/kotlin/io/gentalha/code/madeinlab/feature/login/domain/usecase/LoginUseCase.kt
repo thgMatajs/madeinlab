@@ -10,10 +10,8 @@ class LoginUseCase(
     private val validatePasswordUseCase: ValidatePasswordUseCase
 ) {
     suspend operator fun invoke(email: String, password: String): Result<Unit> {
-        // 1. Executa a validação primeiro
         val emailResult = validateEmailUseCase(email)
         if (!emailResult.isSuccess) {
-            // Retorna um Result.failure com a mensagem de erro de validação
             return Result.failure(Exception(emailResult.errorMessage))
         }
 
@@ -21,8 +19,6 @@ class LoginUseCase(
         if (!passwordResult.isSuccess) {
             return Result.failure(Exception(passwordResult.errorMessage))
         }
-
-        // 2. Se a validação passar, chama o repositório
         return repository.login(email, password)
     }
 }
