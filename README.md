@@ -9,7 +9,7 @@ desenvolvimento, arquitetura limpa, componentização e uma estratégia de teste
 
 ### 🎥 Demonstração
 
-![login_demo](images/demo.webm)
+![login_demo](images/demo.gif)
 
 ---
 
