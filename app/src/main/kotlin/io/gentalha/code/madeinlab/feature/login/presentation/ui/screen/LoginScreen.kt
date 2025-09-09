@@ -31,13 +31,15 @@ import io.gentalha.code.madeinlab.R
 import io.gentalha.code.madeinlab.ds.buttom.PrimaryButton
 import io.gentalha.code.madeinlab.ds.buttom.SecondaryButton
 import io.gentalha.code.madeinlab.ds.textfield.AppTextField
+import io.gentalha.code.madeinlab.feature.login.presentation.ui.state.LoginEvent
 import io.gentalha.code.madeinlab.feature.login.presentation.viewmodel.LoginViewModel
 import io.gentalha.code.madeinlab.ui.theme.MadeInLabTheme
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
@@ -49,9 +51,16 @@ fun LoginScreen(
         emailFocusRequester.requestFocus()
     }
     val successMessage = stringResource(R.string.login_success)
-    LaunchedEffect(uiState.loginSuccess) {
-        if (uiState.loginSuccess) {
-            Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        viewModel.eventChannel.collect { event ->
+            when (event) {
+                is LoginEvent.LoginSuccess -> {
+                    Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
+                }
+                is LoginEvent.LoginFailure -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 

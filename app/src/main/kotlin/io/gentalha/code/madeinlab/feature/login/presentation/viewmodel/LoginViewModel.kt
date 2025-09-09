@@ -3,17 +3,26 @@ package io.gentalha.code.madeinlab.feature.login.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.gentalha.code.madeinlab.core.validation.Rules
+import io.gentalha.code.madeinlab.feature.login.domain.repository.LoginRepository
+import io.gentalha.code.madeinlab.feature.login.presentation.ui.state.LoginEvent
 import io.gentalha.code.madeinlab.feature.login.presentation.ui.state.LoginUiState
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 
-class LoginViewModel : ViewModel() {
+@KoinViewModel
+class LoginViewModel(
+    private val repository: LoginRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
+    private val _eventChannel = Channel<LoginEvent>()
+    val eventChannel = _eventChannel.receiveAsFlow()
 
     private val emailRules = listOf(
         Rules.NotEmptyRule("O e-mail não pode ser vazio."),
@@ -53,8 +62,19 @@ class LoginViewModel : ViewModel() {
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            delay(2000)
-            _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
+            try {
+                _uiState.update { it.copy(isLoading = true) }
+                repository.login(_uiState.value.email, _uiState.value.password)
+                    .onSuccess {
+                        _eventChannel.send(LoginEvent.LoginSuccess)
+                    }
+                    .onFailure { error ->
+                        _eventChannel.send(LoginEvent.LoginFailure(error.message ?: "Erro desconhecido"))
+                    }
+            } finally {
+                // Este bloco é EXECUTADO SEMPRE, garantindo que o spinner suma.
+                _uiState.update { it.copy(isLoading = false) }
+            }
         }
     }
 
