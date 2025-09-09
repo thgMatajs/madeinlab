@@ -1,6 +1,6 @@
 package io.gentalha.code.madeinlab.core.validation
 
-import android.util.Patterns
+import androidx.core.util.PatternsCompat
 
 /**
  * Conjunto de regras de validação para campos de texto.
@@ -38,6 +38,6 @@ object Rules {
     class EmailRule(
         override val errorMessage: String = "Formato de e-mail inválido."
     ) : ValidationRule {
-        override fun validate(input: String): Boolean = Patterns.EMAIL_ADDRESS.matcher(input).matches()
+        override fun validate(input: String): Boolean = PatternsCompat.EMAIL_ADDRESS.matcher(input).matches()
     }
 }
