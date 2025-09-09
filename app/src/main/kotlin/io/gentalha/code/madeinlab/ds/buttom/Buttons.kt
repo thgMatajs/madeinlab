@@ -44,7 +44,7 @@ fun PrimaryButton(
     enabled: Boolean = true
 ) {
     Button(
-        onClick = onClick,
+        onClick = { if (!isLoading) onClick() },
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp),
@@ -52,9 +52,10 @@ fun PrimaryButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary
         ),
-        enabled = enabled && !isLoading
+        enabled = enabled
     ) {
         if (isLoading) {
             CircularProgressIndicator(
@@ -111,7 +112,8 @@ fun SecondaryButton(
             )
         } else {
             Row(
-                verticalAlignment = Alignment.CenterVertically) {
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 if (icon != null) {
                     Icon(
                         imageVector = icon,

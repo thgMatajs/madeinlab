@@ -56,7 +56,6 @@ fun LoginScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .imePadding()
     ) {
         Column(
             modifier = Modifier
@@ -73,7 +72,7 @@ fun LoginScreen(
                 .align(Alignment.BottomCenter)
                 .clip(RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp))
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(32.dp)
+                .padding(24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
@@ -151,7 +150,7 @@ fun LoginScreen(
                 text = "Entrar",
                 isLoading = uiState.isLoading,
                 onClick = {
-                    viewModel::onLoginClicked
+                    viewModel.onLoginClicked()
                     focusManager.clearFocus()
                 },
                 enabled = uiState.isFormValid && !uiState.isLoading
