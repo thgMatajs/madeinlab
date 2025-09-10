@@ -88,9 +88,13 @@ O coração da aplicação. Contém a lógica de negócio pura, sem nenhuma depe
 Responsável por buscar e salvar dados de diferentes fontes (API, banco de dados local, etc.).
 
 * **Repository (Implementação):**
-    * Implementa a interface `LoginRepository` definida na camada de domínio.
-    * *Neste projeto, a implementação concreta (ex: `LoginRepositoryImpl` que faria uma chamada de API com Retrofit) foi omitida, mas a estrutura está
-      pronta para recebê-la.*
+    * A implementação concreta (`LoginRepositoryImpl`) consome uma fonte de dados remota para realizar a autenticação.
+* **Remote (`LoginService`):**
+    * Para fins de demonstração e para permitir o desenvolvimento desacoplado do backend, a chamada de API real foi substituída por um `LoginService`
+      simulado.
+    * Este serviço simula um **delay de rede de 2 segundos** e retorna respostas de sucesso ou falha com base em credenciais pré-definidas (ex:
+      `error@error.com` para erro de e-mail, `123456` para erro de senha). Isso permite testar facilmente todos os fluxos da UI, incluindo estados de
+      loading e mensagens de erro.
 
 ---
 
